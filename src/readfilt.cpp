@@ -1,19 +1,36 @@
-#include <omp.h>
-#include "bonsai/util.h"
-#include "bonsai/database.h"
-#include "bonsai/bitmap.h"
-#include "sketch/sparse.h"
-#include <map>
-#include "getopt.h"
+#include <omp.h>                // OpenMP for parallelization
+#include "bonsai/util.h"        // Bonsai utility functions
+#include "bonsai/database.h"    // Database functionality
+#include "bonsai/bitmap.h"      // Bitmap data structures
+#include "sketch/sparse.h"      // Sparse sketch implementation
+#include <map>                  // STL map container
+#include "getopt.h"             // Command line argument parsing
 
 using namespace sketch;
 using namespace hll;
 
+/**
+ * @brief Displays usage information for read filtering tool
+ * @return int Exit code (1)
+ */
 int usage() {
     std::fprintf(stderr, "readfilt <flags> in.fq [in2.fq]\n-f\tFraction cutoff (0.5)\n-s\tPath to HLL\n-o\toutput [stdout]\n-k\tSet kmer [21]\n");
     return 1;
 }
 
+/**
+ * @brief Emits filtered read data to output stream
+ * 
+ * Handles both FASTQ and FASTA formats, with support for paired-end data.
+ * Includes containment information in headers.
+ *
+ * @param ks1 First read sequence
+ * @param ks2 Second read sequence (for paired-end data)
+ * @param ofp Output file pointer
+ * @param ci Containment index
+ * @param res Array of results [query-only, ref-only, shared]
+ * @return int 0 on success, -1 on error
+ */
 inline int emit(kseq_t *ks1, kseq_t *ks2, std::FILE *ofp, double ci, const std::array<double, 3> &res) {
     if(ks1->qual.s) {
         const char *comment = ks1->comment.s ? ks1->comment.s: "";
@@ -33,6 +50,20 @@ inline int emit(kseq_t *ks1, kseq_t *ks2, std::FILE *ofp, double ci, const std::
     return 0;
 }
 
+/**
+ * @brief Main function for read filtering
+ * 
+ * Filters reads based on their containment in a reference HyperLogLog sketch.
+ * Supports:
+ * - Single-end and paired-end reads
+ * - FASTA/FASTQ formats
+ * - Regular and sparse HLL processing
+ * - Containment-based filtering
+ * 
+ * @param argc Argument count
+ * @param argv Argument values
+ * @return int Exit status
+ */
 int main(int argc, char *argv[]) {
     if(argc == 1) return usage();
     std::string hllpath;
@@ -42,11 +73,11 @@ int main(int argc, char *argv[]) {
     double frac_cutoff = 0.5;
     while((c = getopt(argc, argv, "Ch?k:s:f:")) >= 0) {
         switch(c) {
-            case 's': hllpath = optarg; break;
-            case 'f': frac_cutoff = std::atof(optarg); break;
-            case 'k': k = std::atoi(optarg); break;
-            case 'o': opath = optarg; break;
-            case 'C': canon = false; break;
+            case 's': hllpath = optarg; break;      // Path to HLL sketch
+            case 'f': frac_cutoff = std::atof(optarg); break;  // Containment threshold
+            case 'k': k = std::atoi(optarg); break; // k-mer size
+            case 'o': opath = optarg; break;        // Output path
+            case 'C': canon = false; break;         // Disable canonical k-mers
             case 'h': case '?': return usage();
         }
     }

@@ -139,7 +139,10 @@ void dist_usage(const char *arg) {
 }
 
 
-// Usage, utilities
+/**
+ * @brief Displays usage information for sketch subcommand
+ * @param arg Program name
+ */
 void sketch_usage(const char *arg) {
     std::fprintf(stderr, "Usage: %s <opts> [genomes if not provided from a file with -F]\n"
                          "Flags:\n"
@@ -373,7 +376,7 @@ int sketch_main(int argc, char *argv[]) {
     }
     KSeqBufferHolder kseqs(nthreads);
     if(wsz < (int)sp.c_) wsz = sp.c_;
-    const int sketch_flags = skip_cached | (int(canon) << 1) | (int(entropy_minimization) << 2);
+    const int sketch_flags = skip_cached | (int(canon) << 1) | (int(entropy_minimization) << 2;
 #define SKETCH_CORE(type) \
     do {\
         if(gargs.exact_weighted) {\
@@ -400,7 +403,7 @@ int sketch_main(int argc, char *argv[]) {
 #undef SKETCH_CORE
         default: {
             char buf[128];
-            std::sprintf(buf, "Sketch %s not yet supported.\n", (size_t(sketch_type) >= (sizeof(sketch_names) / sizeof(char *)) ? "Not such sketch": sketch_names[sketch_type]));
+            std::sprintf(buf, "Sketch %s not yet supported.\n", (size_t(sketch_type) >= (sizeof(sketch_names) / sizeof(char *)) ? "Not such sketch": sketch_names[sketch_type]);
             UNRECOVERABLE_ERROR(buf);
         }
     }
@@ -411,17 +414,23 @@ int sketch_main(int argc, char *argv[]) {
 
 
 
+/**
+ * @brief Enumeration for different compression reading modes
+ */
 namespace {
 enum CompReading: unsigned {
-    UNCOMPRESSED,
-    GZ,
-    AUTODETECT
+    UNCOMPRESSED,    // No compression
+    GZ,             // Gzip compression
+    AUTODETECT      // Automatically detect compression
 };
 }
 
-
-
-
+/**
+ * @brief Prints binary matrix to output
+ * @param argc Argument count
+ * @param argv Argument values
+ * @return int Exit status
+ */
 int print_binary_main(int argc, char *argv[]) {
     int c;
     bool use_scientific = false;
@@ -451,7 +460,10 @@ int print_binary_main(int argc, char *argv[]) {
     return EXIT_SUCCESS;
 }
 
-
+/**
+ * @brief Displays usage information for union subcommand
+ * @param ex Program name
+ */
 void union_usage [[noreturn]] (char *ex) {
     std::fprintf(stderr, "Usage: %s genome1 <genome2>...\n"
                          "Flags:\n"
@@ -467,6 +479,10 @@ void union_usage [[noreturn]] (char *ex) {
     std::exit(1);
 }
 
+/**
+ * @brief Main function for sketch-by-sequence subcommand
+ * Creates sketches for individual sequences rather than whole files
+ */
 int sketch_by_seq_main(int argc, char *argv[]) {
     int wsz(0), k(31), sketch_size(10), skip_cached(false), co, nthreads(1), mincount(1), nhashes(1), cmsketchsize(-1);
     int canon(true);
@@ -590,4 +606,3 @@ int fold_main(int argc, char **argv) {
 }
 
 } // namespace bns
-
