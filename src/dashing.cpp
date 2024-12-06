@@ -3,52 +3,131 @@
 using namespace sketch;
 using hll::hll_t;
 
-
 namespace bns {
+
+// Global arguments struct used throughout the program
 GlobalArgs gargs;
+
+// Global hash seed used for sketching
 uint64_t global_hash_seed = 137;
-// sketch_core forward declaration
+
+// Forward declarations of sketch_core template specializations for different sketch types
+// Each specialization handles sketching with a specific data structure/algorithm
+
+// Basic range min-hash sketching
 extern template void sketch_core<BKHash64>(uint32_t ssarg, uint32_t nthreads, uint32_t wsz, uint32_t k, const Spacer &sp, const std::vector<std::string> &inpaths, const std::string &suffix, const std::string &prefix, std::vector<CountingSketch> &counting_sketches, EstimationMethod estim, JointEstimationMethod jestim, KSeqBufferHolder &kseqs, const std::vector<bool> &use_filter, const std::string &spacing, int sketch_flags, uint32_t mincount, EncodingType enct, std::string);
+
+// Counting range min-hash sketching
 extern template void sketch_core<mh::CountingRangeMinHash<uint64_t>>(uint32_t ssarg, uint32_t nthreads, uint32_t wsz, uint32_t k, const Spacer &sp, const std::vector<std::string> &inpaths, const std::string &suffix, const std::string &prefix, std::vector<CountingSketch> &counting_sketches, EstimationMethod estim, JointEstimationMethod jestim, KSeqBufferHolder &kseqs, const std::vector<bool> &use_filter, const std::string &spacing, int sketch_flags, uint32_t mincount, EncodingType enct, std::string);
+
+// Super min-hash sketching
 extern template void sketch_core<SuperMinHashType>(uint32_t ssarg, uint32_t nthreads, uint32_t wsz, uint32_t k, const Spacer &sp, const std::vector<std::string> &inpaths, const std::string &suffix, const std::string &prefix, std::vector<CountingSketch> &counting_sketches, EstimationMethod estim, JointEstimationMethod jestim, KSeqBufferHolder &kseqs, const std::vector<bool> &use_filter, const std::string &spacing, int sketch_flags, uint32_t mincount, EncodingType enct, std::string);
+
+// HyperLogLog sketching
 extern template void sketch_core<hll::hll_t>(uint32_t ssarg, uint32_t nthreads, uint32_t wsz, uint32_t k, const Spacer &sp, const std::vector<std::string> &inpaths, const std::string &suffix, const std::string &prefix, std::vector<CountingSketch> &counting_sketches, EstimationMethod estim, JointEstimationMethod jestim, KSeqBufferHolder &kseqs, const std::vector<bool> &use_filter, const std::string &spacing, int sketch_flags, uint32_t mincount, EncodingType enct, std::string);
+
+// HyperLogLog with hash sketching
 extern template void sketch_core<HLLH>(uint32_t ssarg, uint32_t nthreads, uint32_t wsz, uint32_t k, const Spacer &sp, const std::vector<std::string> &inpaths, const std::string &suffix, const std::string &prefix, std::vector<CountingSketch> &counting_sketches, EstimationMethod estim, JointEstimationMethod jestim, KSeqBufferHolder &kseqs, const std::vector<bool> &use_filter, const std::string &spacing, int sketch_flags, uint32_t mincount, EncodingType enct, std::string);
+
+// Bloom filter sketching
 extern template void sketch_core< bf::bf_t>(uint32_t ssarg, uint32_t nthreads, uint32_t wsz, uint32_t k, const Spacer &sp, const std::vector<std::string> &inpaths, const std::string &suffix, const std::string &prefix, std::vector<CountingSketch> &counting_sketches, EstimationMethod estim, JointEstimationMethod jestim, KSeqBufferHolder &kseqs, const std::vector<bool> &use_filter, const std::string &spacing, int sketch_flags, uint32_t mincount, EncodingType enct, std::string);
+
+// Khash set sketching
 extern template void sketch_core<khset64_t>(uint32_t ssarg, uint32_t nthreads, uint32_t wsz, uint32_t k, const Spacer &sp, const std::vector<std::string> &inpaths, const std::string &suffix, const std::string &prefix, std::vector<CountingSketch> &counting_sketches, EstimationMethod estim, JointEstimationMethod jestim, KSeqBufferHolder &kseqs, const std::vector<bool> &use_filter, const std::string &spacing, int sketch_flags, uint32_t mincount, EncodingType enct, std::string);
+
+// B-bit min-hash sketching
 extern template void sketch_core<mh::BBitMinHasher<uint64_t>>(uint32_t ssarg, uint32_t nthreads, uint32_t wsz, uint32_t k, const Spacer &sp, const std::vector<std::string> &inpaths, const std::string &suffix, const std::string &prefix, std::vector<CountingSketch> &counting_sketches, EstimationMethod estim, JointEstimationMethod jestim, KSeqBufferHolder &kseqs, const std::vector<bool> &use_filter, const std::string &spacing, int sketch_flags, uint32_t mincount, EncodingType enct, std::string);
 
+// Forward declarations for weighted sketching variants
+// These use the WeightedSketcher wrapper around base sketch types
+
+// Weighted range min-hash
 extern template void sketch_core<wj::WeightedSketcher<BKHash64>>(uint32_t ssarg, uint32_t nthreads, uint32_t wsz, uint32_t k, const Spacer &sp, const std::vector<std::string> &inpaths, const std::string &suffix, const std::string &prefix, std::vector<CountingSketch> &counting_sketches, EstimationMethod estim, JointEstimationMethod jestim, KSeqBufferHolder &kseqs, const std::vector<bool> &use_filter, const std::string &spacing, int sketch_flags, uint32_t mincount, EncodingType enct, std::string);
+
+// Weighted counting range min-hash
 extern template void sketch_core<wj::WeightedSketcher<mh::CountingRangeMinHash<uint64_t>>>(uint32_t ssarg, uint32_t nthreads, uint32_t wsz, uint32_t k, const Spacer &sp, const std::vector<std::string> &inpaths, const std::string &suffix, const std::string &prefix, std::vector<CountingSketch> &counting_sketches, EstimationMethod estim, JointEstimationMethod jestim, KSeqBufferHolder &kseqs, const std::vector<bool> &use_filter, const std::string &spacing, int sketch_flags, uint32_t mincount, EncodingType enct, std::string);
+
+// Weighted super min-hash
 extern template void sketch_core<wj::WeightedSketcher<SuperMinHashType>>(uint32_t ssarg, uint32_t nthreads, uint32_t wsz, uint32_t k, const Spacer &sp, const std::vector<std::string> &inpaths, const std::string &suffix, const std::string &prefix, std::vector<CountingSketch> &counting_sketches, EstimationMethod estim, JointEstimationMethod jestim, KSeqBufferHolder &kseqs, const std::vector<bool> &use_filter, const std::string &spacing, int sketch_flags, uint32_t mincount, EncodingType enct, std::string);
+
+// Weighted HyperLogLog
 extern template void sketch_core<wj::WeightedSketcher<hll::hll_t>>(uint32_t ssarg, uint32_t nthreads, uint32_t wsz, uint32_t k, const Spacer &sp, const std::vector<std::string> &inpaths, const std::string &suffix, const std::string &prefix, std::vector<CountingSketch> &counting_sketches, EstimationMethod estim, JointEstimationMethod jestim, KSeqBufferHolder &kseqs, const std::vector<bool> &use_filter, const std::string &spacing, int sketch_flags, uint32_t mincount, EncodingType enct, std::string);
+
+// Weighted HyperLogLog with hash
 extern template void sketch_core<wj::WeightedSketcher<HLLH>>(uint32_t ssarg, uint32_t nthreads, uint32_t wsz, uint32_t k, const Spacer &sp, const std::vector<std::string> &inpaths, const std::string &suffix, const std::string &prefix, std::vector<CountingSketch> &counting_sketches, EstimationMethod estim, JointEstimationMethod jestim, KSeqBufferHolder &kseqs, const std::vector<bool> &use_filter, const std::string &spacing, int sketch_flags, uint32_t mincount, EncodingType enct, std::string);
+
+// Weighted Bloom filter
 extern template void sketch_core<wj::WeightedSketcher<bf::bf_t>>(uint32_t ssarg, uint32_t nthreads, uint32_t wsz, uint32_t k, const Spacer &sp, const std::vector<std::string> &inpaths, const std::string &suffix, const std::string &prefix, std::vector<CountingSketch> &counting_sketches, EstimationMethod estim, JointEstimationMethod jestim, KSeqBufferHolder &kseqs, const std::vector<bool> &use_filter, const std::string &spacing, int sketch_flags, uint32_t mincount, EncodingType enct, std::string);
+
+// Weighted khash set
 extern template void sketch_core<wj::WeightedSketcher<khset64_t>>(uint32_t ssarg, uint32_t nthreads, uint32_t wsz, uint32_t k, const Spacer &sp, const std::vector<std::string> &inpaths, const std::string &suffix, const std::string &prefix, std::vector<CountingSketch> &counting_sketches, EstimationMethod estim, JointEstimationMethod jestim, KSeqBufferHolder &kseqs, const std::vector<bool> &use_filter, const std::string &spacing, int sketch_flags, uint32_t mincount, EncodingType enct, std::string);
+
+// Weighted B-bit min-hash with exact counting
 extern template void sketch_core<wj::WeightedSketcher<mh::BBitMinHasher<uint64_t>, wj::ExactCountingAdapter>>(uint32_t ssarg, uint32_t nthreads, uint32_t wsz, uint32_t k, const Spacer &sp, const std::vector<std::string> &inpaths, const std::string &suffix, const std::string &prefix, std::vector<CountingSketch> &counting_sketches, EstimationMethod estim, JointEstimationMethod jestim, KSeqBufferHolder &kseqs, const std::vector<bool> &use_filter, const std::string &spacing, int sketch_flags, uint32_t mincount, EncodingType enct, std::string);
 
+// Forward declarations for weighted sketching variants with exact counting
+
+// Weighted range min-hash with exact counting
 extern template void sketch_core<wj::WeightedSketcher<BKHash64, wj::ExactCountingAdapter>>(uint32_t ssarg, uint32_t nthreads, uint32_t wsz, uint32_t k, const Spacer &sp, const std::vector<std::string> &inpaths, const std::string &suffix, const std::string &prefix, std::vector<CountingSketch> &counting_sketches, EstimationMethod estim, JointEstimationMethod jestim, KSeqBufferHolder &kseqs, const std::vector<bool> &use_filter, const std::string &spacing, int sketch_flags, uint32_t mincount, EncodingType enct, std::string);
+
+// Weighted counting range min-hash with exact counting
 extern template void sketch_core<wj::WeightedSketcher<mh::CountingRangeMinHash<uint64_t>, wj::ExactCountingAdapter>>(uint32_t ssarg, uint32_t nthreads, uint32_t wsz, uint32_t k, const Spacer &sp, const std::vector<std::string> &inpaths, const std::string &suffix, const std::string &prefix, std::vector<CountingSketch> &counting_sketches, EstimationMethod estim, JointEstimationMethod jestim, KSeqBufferHolder &kseqs, const std::vector<bool> &use_filter, const std::string &spacing, int sketch_flags, uint32_t mincount, EncodingType enct, std::string);
+
+// Weighted super min-hash with exact counting
 extern template void sketch_core<wj::WeightedSketcher<SuperMinHashType>>(uint32_t ssarg, uint32_t nthreads, uint32_t wsz, uint32_t k, const Spacer &sp, const std::vector<std::string> &inpaths, const std::string &suffix, const std::string &prefix, std::vector<CountingSketch> &counting_sketches, EstimationMethod estim, JointEstimationMethod jestim, KSeqBufferHolder &kseqs, const std::vector<bool> &use_filter, const std::string &spacing, int sketch_flags, uint32_t mincount, EncodingType enct, std::string);
+
+// Weighted HyperLogLog with exact counting
 extern template void sketch_core<wj::WeightedSketcher<hll::hll_t, wj::ExactCountingAdapter>>(uint32_t ssarg, uint32_t nthreads, uint32_t wsz, uint32_t k, const Spacer &sp, const std::vector<std::string> &inpaths, const std::string &suffix, const std::string &prefix, std::vector<CountingSketch> &counting_sketches, EstimationMethod estim, JointEstimationMethod jestim, KSeqBufferHolder &kseqs, const std::vector<bool> &use_filter, const std::string &spacing, int sketch_flags, uint32_t mincount, EncodingType enct, std::string);
+
+// Weighted HyperLogLog with hash and exact counting
 extern template void sketch_core<wj::WeightedSketcher<HLLH, wj::ExactCountingAdapter>>(uint32_t ssarg, uint32_t nthreads, uint32_t wsz, uint32_t k, const Spacer &sp, const std::vector<std::string> &inpaths, const std::string &suffix, const std::string &prefix, std::vector<CountingSketch> &counting_sketches, EstimationMethod estim, JointEstimationMethod jestim, KSeqBufferHolder &kseqs, const std::vector<bool> &use_filter, const std::string &spacing, int sketch_flags, uint32_t mincount, EncodingType enct, std::string);
+
+// Weighted Bloom filter with exact counting
 extern template void sketch_core<wj::WeightedSketcher<bf::bf_t, wj::ExactCountingAdapter>>(uint32_t ssarg, uint32_t nthreads, uint32_t wsz, uint32_t k, const Spacer &sp, const std::vector<std::string> &inpaths, const std::string &suffix, const std::string &prefix, std::vector<CountingSketch> &counting_sketches, EstimationMethod estim, JointEstimationMethod jestim, KSeqBufferHolder &kseqs, const std::vector<bool> &use_filter, const std::string &spacing, int sketch_flags, uint32_t mincount, EncodingType enct, std::string);
+
+// Weighted khash set with exact counting
 extern template void sketch_core<wj::WeightedSketcher<khset64_t, wj::ExactCountingAdapter>>(uint32_t ssarg, uint32_t nthreads, uint32_t wsz, uint32_t k, const Spacer &sp, const std::vector<std::string> &inpaths, const std::string &suffix, const std::string &prefix, std::vector<CountingSketch> &counting_sketches, EstimationMethod estim, JointEstimationMethod jestim, KSeqBufferHolder &kseqs, const std::vector<bool> &use_filter, const std::string &spacing, int sketch_flags, uint32_t mincount, EncodingType enct, std::string);
+
+// Weighted B-bit min-hash with exact counting
 extern template void sketch_core<wj::WeightedSketcher<mh::BBitMinHasher<uint64_t>, wj::ExactCountingAdapter>>(uint32_t ssarg, uint32_t nthreads, uint32_t wsz, uint32_t k, const Spacer &sp, const std::vector<std::string> &inpaths, const std::string &suffix, const std::string &prefix, std::vector<CountingSketch> &counting_sketches, EstimationMethod estim, JointEstimationMethod jestim, KSeqBufferHolder &kseqs, const std::vector<bool> &use_filter, const std::string &spacing, int sketch_flags, uint32_t mincount, EncodingType enct, std::string);
-// sketch_by_seq_core forward declaration
 
-
+/**
+ * @brief Displays usage information for the main program and exits
+ * @param argv Array of command line arguments
+ */
 void main_usage(char **argv) {
     std::fprintf(stderr, "Usage: %s <subcommand> [options...]. Use %s <subcommand> for more options. [Subcommands: sketch, cmp, hll, mkdist, union, view, flatten, printmat.]\[dist is an alias for cmp]\n",
                  *argv, *argv);
     std::exit(EXIT_FAILURE);
 }
 
+/**
+ * @brief Gets the size of a file in bytes using POSIX stat
+ * @param path Path to the file
+ * @return Size of the file in bytes
+ */
 size_t posix_fsize(const char *path) {
     struct stat st;
     stat(path, &st);
     return st.st_size;
 }
-
+/**
+ * @brief Displays usage information for the distance calculation subcommand
+ * 
+ * This function prints detailed help text for the distance calculation functionality,
+ * including all available options and flags. It covers:
+ * - Encoding options (k-mer size, spacing, window size, etc.)
+ * - Output file options
+ * - Filtering options (count-min sketch parameters)
+ * - Runtime options (threading, caching, etc.) 
+ * - Emission format options (binary, PHYLIP, TSV)
+ * - Data structure options (HyperLogLog, MinHash variants)
+ * - Distance calculation options (Jaccard, Mash, containment)
+ * - Weighted Jaccard streaming options
+ *
+ * @param arg Program name to display in usage text
+ * @note Exits with failure status after displaying usage
+ */
 void dist_usage(const char *arg) {
     std::fprintf(stderr, "Usage: %s <opts> [genome1 genome2 seq.fq [...] if not provided from a file with -F]\n"
                          "Flags:\n"
@@ -138,7 +217,6 @@ void dist_usage(const char *arg) {
     std::exit(EXIT_FAILURE);
 }
 
-
 /**
  * @brief Displays usage information for sketch subcommand
  * @param arg Program name
@@ -196,7 +274,14 @@ void sketch_usage(const char *arg) {
     std::exit(EXIT_FAILURE);
 }
 
-
+/**
+ * @brief Display usage information for sketch-by-sequence subcommand
+ * @param arg Program name/path
+ *
+ * Prints usage instructions for the sketch-by-sequence functionality, which creates 
+ * individual sketches for each sequence in an input file rather than one sketch per file.
+ * Shows available options and parameters for controlling sketch creation.
+ */
 void sketch_by_seq_usage(const char *arg) {
     std::fprintf(stderr, "Usage: %s <opts> [genomes if not provided from a file with -F]\n"
                          "Creates a set of sketches, one per sequence, for a given file.\n"
@@ -244,7 +329,15 @@ void sketch_by_seq_usage(const char *arg) {
                 , arg);
     std::exit(EXIT_FAILURE);
 }
-
+/**
+ * @brief Check if a filename indicates a FASTQ file
+ * @param path Path/filename to check
+ * @return true if filename contains .fastq or .fq extension, false otherwise
+ *
+ * Checks if the given path contains either .fastq or .fq extensions to identify
+ * FASTQ format files. The check is case-sensitive and the extension can appear
+ * anywhere in the path.
+ */
 bool fname_is_fq(const std::string &path) {
     static const std::string fq1 = ".fastq", fq2 = ".fq";
     return path.find(fq1) != std::string::npos || path.find(fq2) != std::string::npos;
@@ -252,7 +345,18 @@ bool fname_is_fq(const std::string &path) {
 
 
 
-
+/**
+ * @brief Defines long command line options for sketching functionality
+ * 
+ * This macro defines an array of option_struct containing the long command line options
+ * for sketching operations. Each option is defined using LO_FLAG macro which maps
+ * long option names to short flags and variables.
+ * 
+ * Options defined:
+ * - countmin (-b): Sets sketching method to Count-Min Bloom Filter
+ * - sketch-by-fname (-f): Sets sketching method based on filename
+ * - no-canon (-C): Disables canonical k-mer mode
+ */
 #define SKETCH_LONG_OPTS \
 static option_struct sketch_long_options[] = {\
     LO_FLAG("countmin", 'b', sm, CBF)\
@@ -293,19 +397,51 @@ static option_struct sketch_long_options[] = {\
     {0,0,0,0}\
 };
 
-// Main functions
+/**
+ * @brief Main function for sketch creation
+ * @param argc Number of command line arguments
+ * @param argv Array of command line argument strings
+ * @return Exit status
+ *
+ * This function handles creating sketches from input sequences using various sketching methods.
+ * It processes command line arguments to configure the sketching parameters and executes
+ * the appropriate sketching algorithm.
+ */
 int sketch_main(int argc, char *argv[]) {
-    int wsz(0), k(31), sketch_size(10), skip_cached(false), co, nthreads(1), mincount(1), nhashes(1), cmsketchsize(-1);
-    int canon(true);
-    int entropy_minimization = false, avoid_fsorting = false, weighted_jaccard = false;
+    // Initialize default parameter values
+    int wsz(0);                     // Window size
+    int k(31);                      // k-mer length 
+    int sketch_size(10);            // Size of sketch
+    int skip_cached(false);         // Whether to skip cached sketches
+    int co;                         // For getopt parsing
+    int nthreads(1);               // Number of threads
+    int mincount(1);               // Minimum k-mer count
+    int nhashes(1);                // Number of hash functions
+    int cmsketchsize(-1);          // Count-min sketch size
+    int canon(true);               // Use canonical k-mers
+    int entropy_minimization = false;  // Use entropy minimization
+    int avoid_fsorting = false;     // Avoid sorting by file size
+    int weighted_jaccard = false;   // Use weighted Jaccard
+
+    // Set default estimation methods
     hll::EstimationMethod estim = hll::EstimationMethod::ERTL_MLE;
     hll::JointEstimationMethod jestim = static_cast<hll::JointEstimationMethod>(hll::EstimationMethod::ERTL_MLE);
-    std::string spacing, paths_file, suffix, prefix, output_file;
-    sketching_method sm = EXACT;
-    Sketch sketch_type = HLL;
-    EncodingType enct = BONSAI;
-    uint64_t seedseedseed = 1337u;
-    int option_index = 0;
+
+    // Initialize string parameters
+    std::string spacing;            // Spacing between k-mers
+    std::string paths_file;         // File containing input paths
+    std::string suffix;             // Suffix for output files
+    std::string prefix;             // Prefix for output files 
+    std::string output_file;        // Output file path
+
+    // Set default sketching parameters
+    sketching_method sm = EXACT;    // Sketching method
+    Sketch sketch_type = HLL;       // Type of sketch
+    EncodingType enct = BONSAI;     // Encoding type
+    uint64_t seedseedseed = 1337u;  // Random seed
+    int option_index = 0;           // For getopt_long
+
+    // Process command line options
     SKETCH_LONG_OPTS
     while((co = getopt_long(argc, argv, "n:P:F:o:p:x:R:s:S:k:w:H:q:B:8JbfjEIcCeh?", sketch_long_options, &option_index)) >= 0) {
         switch(co) {
@@ -338,35 +474,57 @@ int sketch_main(int argc, char *argv[]) {
             case 'h': case '?': sketch_usage(*argv); break;
         }
     }
+    // Validate k-mer size constraints
     if(k > 32 && enct == BONSAI)
         UNRECOVERABLE_ERROR("k must be <= 32 for non-rolling hashes.");
     if(k > 32 && spacing.size())
         UNRECOVERABLE_ERROR("kmers must be unspaced for k > 32");
+
+    // Configure threading
     nthreads = std::max(nthreads, 1);
     omp_set_num_threads(nthreads);
     std::fprintf(stderr, "Using %d threads\n", nthreads);
+
+    // Initialize spacer for k-mer processing
     Spacer sp(k, wsz, parse_spacing(spacing.data(), k));
+
+    // Initialize data structures for filtering and counting
     std::vector<bool> use_filter;
     std::vector<CountingSketch> cms;
+
+    // Get input paths either from paths file or command line arguments
     std::vector<std::string> inpaths(paths_file.size() && isfile(paths_file)
         ? get_paths(paths_file.data())
         : std::vector<std::string>(argv + optind, argv + argc));
+
+    // Log sketching parameters
     LOG_INFO("Sketching genomes with sketch: %d/%s\n", sketch_type, sketch_names[sketch_type]);
+
+    // Validate input paths
     if(inpaths.empty()) {
         std::fprintf(stderr, "No paths. See usage.\n");
         sketch_usage(*argv);
     }
+
+    // Sort input paths by file size if enabled
     if(!avoid_fsorting)
         detail::sort_paths_by_fsize(inpaths);
+
+    // Configure count-min sketches if not using exact method
     if(sm != EXACT) {
+        // Set default count-min sketch size if not specified
         if(cmsketchsize < 0) {
             cmsketchsize = 20;
             LOG_WARNING("Note: count-min sketch size not set. Defaulting to 20 for log2(sketch_size).\n");
         }
+
+        // Initialize filtering based on sketch method
         if(sm == CBF)
             use_filter = std::vector<bool>(inpaths.size(), true);
         else // BY_FNAME
             for(const auto &path: inpaths) use_filter.emplace_back(fname_is_fq(path));
+
+        // Create count-min sketches for each thread
         while(cms.size() < unsigned(nthreads))
 #if DASHING_USE_HK
             cms.emplace_back(cmsketchsize, nhashes, 1.05, (cms.size() ^ seedseedseed) * 1337uL);
@@ -549,58 +707,110 @@ int sketch_by_seq_main(int argc, char *argv[]) {
     //if(use_filter)
     //    cs = new CountingSketch(cmsketchsize, nhashes, 1.08, seedseedseed);
     const int sketch_flags = skip_cached | (int(canon) << 1) | (int(entropy_minimization) << 2);
+    // Create spacer object with k-mer size, window size and parsed spacing parameters
     const Spacer sp(k, wsz, parse_spacing(spacing.data(), k));
-#define SKETCH_BY_SEQ_CORE(type) \
-    sketch_by_seq_core<type>(sketch_size, nthreads, sp, inpath, outpath,\
-                             cs.get(), estim, jestim,\
-                             use_filter, sketch_flags, mincount, enct)
+
+    // Macro to call sketch_by_seq_core with common parameters
+    #define SKETCH_BY_SEQ_CORE(type) \
+        sketch_by_seq_core<type>(sketch_size, nthreads, sp, inpath, outpath,\
+                                cs.get(), estim, jestim,\
+                                use_filter, sketch_flags, mincount, enct)
+
+    // Process sketches based on sketch type
     switch(sketch_type) {
-        case HLL: if(gargs.defer_hll_creation) SKETCH_BY_SEQ_CORE(hll::hll_t);
-                  else                         SKETCH_BY_SEQ_CORE(HLLH);
-        break;
-        // case WIDE_HLL: SKETCH_BY_SEQ_CORE(sketch::WideHyperLogLogHasher<>); break;
-        case BLOOM_FILTER: SKETCH_BY_SEQ_CORE(bf::bf_t); break;
-        case RANGE_MINHASH: SKETCH_BY_SEQ_CORE(BKHash64); break;
-        case BB_MINHASH: SKETCH_BY_SEQ_CORE(mh::BBitMinHasher<uint64_t>); break;
-        case FULL_KHASH_SET: SKETCH_BY_SEQ_CORE(khset64_t); break;
+        case HLL: 
+            // Use deferred or immediate HLL creation based on flag
+            if(gargs.defer_hll_creation) 
+                SKETCH_BY_SEQ_CORE(hll::hll_t);
+            else                         
+                SKETCH_BY_SEQ_CORE(HLLH);
+            break;
+        case BLOOM_FILTER: 
+            SKETCH_BY_SEQ_CORE(bf::bf_t); 
+            break;
+        case RANGE_MINHASH: 
+            SKETCH_BY_SEQ_CORE(BKHash64); 
+            break;
+        case BB_MINHASH: 
+            SKETCH_BY_SEQ_CORE(mh::BBitMinHasher<uint64_t>); 
+            break;
+        case FULL_KHASH_SET: 
+            SKETCH_BY_SEQ_CORE(khset64_t); 
+            break;
         default: {
+            // Handle unsupported sketch types with error message
             char buf[128];
-            std::sprintf(buf, "Sketch %s not yet supported.\n", (size_t(sketch_type) >= (sizeof(sketch_names) / sizeof(char *)) ? "Not such sketch": sketch_names[sketch_type]));
+            std::sprintf(buf, "Sketch %s not yet supported.\n", 
+                (size_t(sketch_type) >= (sizeof(sketch_names) / sizeof(char *)) ? 
+                "Not such sketch": sketch_names[sketch_type]));
             UNRECOVERABLE_ERROR(buf);
         }
     }
     return EXIT_SUCCESS;
 }
 
+/**
+ * @brief View contents of HLL sketch files
+ * @param argc Number of command line arguments
+ * @param argv Array of command line arguments
+ * @return EXIT_SUCCESS on success
+ */
 int view_main(int argc, char *argv[]) {
-    if(argc < 2) UNRECOVERABLE_ERROR("Usage: dashing view f1.hll [f2.hll ...]. Only HLLs currently supported.");
+    if(argc < 2) 
+        UNRECOVERABLE_ERROR("Usage: dashing view f1.hll [f2.hll ...]. Only HLLs currently supported.");
+    
+    // Print each HLL file to stdout
     for(int i = 1; i < argc; hll::hll_t(argv[i++]).printf(stdout));
     return 0;
 }
+
+/**
+ * @brief Display usage information for fold command
+ */
 void fold_usage() {
      std::fprintf(stderr, "Usage: dashing fold <flags> [in1.hll]\n-o: Write to <path> instead of stdout\n"
                           "-p: set destination p [must be smaller than the input sketch\n");
      std::exit(EXIT_FAILURE);
 }
 
+/**
+ * @brief Fold/compress HLL sketches
+ * @param argc Number of command line arguments  
+ * @param argv Array of command line arguments
+ * @return EXIT_SUCCESS on success
+ */
 int fold_main(int argc, char **argv) {
     std::string out = "/dev/stdout", in = "/dev/stdin";
     int destp = -1;
-    for(int c;(c = getopt(argc, argv, "p:o:h?")) >= 0;) { switch(c){
-        case 'o': out = optarg; break;
-        case 'p': destp = std::atoi(optarg); break;
-        case '?': case 'h':
-        default: fold_usage();
-    }}
+
+    // Parse command line options
+    for(int c;(c = getopt(argc, argv, "p:o:h?")) >= 0;) { 
+        switch(c){
+            case 'o': out = optarg; break;
+            case 'p': destp = std::atoi(optarg); break;
+            case '?': case 'h':
+            default: fold_usage();
+        }
+    }
+
+    // Handle input arguments
     switch(argc - optind) {
         case 0: break;
         case 1: in = argv[optind]; break;
         default: fold_usage();
     }
+
+    // Read input HLL
     hll_t h(in);
+
+    // Normalize paths
     if(out == "-") out = "/dev/stdout";
     if(in  == "-") in  = "/dev/stdin";
+
+    // Set default destination p if not specified
     if(destp <= 0) destp = h.p() - 1;
+
+    // Compress and write HLL
     h.compress(destp).write(out);
     return EXIT_SUCCESS;
 }
